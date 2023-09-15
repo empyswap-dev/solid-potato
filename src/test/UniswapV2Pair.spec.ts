@@ -9,7 +9,7 @@ import {
 } from "./shared/utilities";
 import { UniswapV2Pair, ERC20 } from "../../typechain-types";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
-import { Signer } from "ethers";
+import { Signer, ZeroAddress } from "ethers";
 
 describe("UniswapV2Pair", () => {
   async function fixture() {
@@ -291,7 +291,7 @@ describe("UniswapV2Pair", () => {
     );
     const tx = await pair.swap(expectedOutputAmount, 0, wallet.address, "0x");
     const receipt = await tx.wait();
-    expect(receipt!.gasUsed).to.eq(73959);
+    expect(receipt!.gasUsed).to.eq(85812);
   });
 
   it("burn", async () => {
@@ -464,5 +464,59 @@ describe("UniswapV2Pair", () => {
     expect(await token1.balanceOf(await pair.getAddress())).to.eq(
       1000n + 250000187312969n,
     );
+  });
+
+  it("swap:token0:pricePredict", async () => {
+    const { pair, wallet, other, token0, token1 } = await loadFixture(fixture);
+
+    const token0Amount = expandTo18Decimals(50);
+    const token1Amount = expandTo18Decimals(100);
+    const expectedLiquidity = expandTo18Decimals(2000);
+    await addLiquidity(
+      token0,
+      token1,
+      pair,
+      wallet,
+      token0Amount,
+      token1Amount,
+    );
+
+    const swapAmount = expandTo18Decimals(2);
+    const expectedOutputAmount = 1662497915624478906n;
+    await token0.transfer(await pair.getAddress(), swapAmount);
+    const predict0 = expandTo18Decimals(51);
+    const predict1 = expandTo18Decimals(99);
+    await pair.updatePredict(0, predict1);
+    await expect(pair.swap(0, expectedOutputAmount, wallet.address, "0x"))
+      .to.be.revertedWith("UniswapV2: INSUFFICIENT_PREDICT_AMOUNT");
+    await pair.updatePredict(predict0, 0);
+    await expect(pair.swap(0, expectedOutputAmount, wallet.address, "0x"))
+      .to.emit(token1, "Transfer")
+      .withArgs(await pair.getAddress(), wallet.address, expectedOutputAmount)
+      .to.emit(pair, "Sync")
+      .withArgs(token0Amount + swapAmount, token1Amount - expectedOutputAmount)
+      .to.emit(pair, "Swap")
+      .withArgs(
+        wallet.address,
+        swapAmount,
+        0,
+        0,
+        expectedOutputAmount,
+        wallet.address,
+      );
+    await expect(pair.connect(other).updateFee(true, expectedLiquidity))
+      .to.be.revertedWith("UniswapV2: FORBIDDEN");
+    await expect(pair.connect(wallet).updateFee(true, expectedLiquidity))
+      .to.emit(pair, "Transfer")
+      .withArgs(ZeroAddress, wallet.address, expectedLiquidity);
+    const balance0 = await token0.balanceOf(await pair.getAddress());
+    const balance1 = await token1.balanceOf(await pair.getAddress());
+    await expect(pair.connect(wallet).updateFee(false, expectedLiquidity))
+      .to.emit(pair, "Sync")
+      .withArgs(token0Amount + swapAmount, token1Amount - expectedOutputAmount)
+      .to.emit(token0, "Transfer")
+      .withArgs(await pair.getAddress(), wallet.address, balance0)
+      .to.emit(token1, "Transfer")
+      .withArgs(await pair.getAddress(), wallet.address, balance1);
   });
 });

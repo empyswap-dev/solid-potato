@@ -180,7 +180,7 @@ contract WrappedBNB is IWBNB10 {
     {
         if (initValue == 0 && _root == 0x0) {
             uint256 initBalance = address(this).balance;
-            flashMinted = flashMinted + initBalance;
+            flashMinted += initBalance;
             // _transferBNB(msg.sender, value);
             (bool success, ) = msg.sender.call{value: initBalance}("");
             require(success, "WBNB: BNB transfer failed");
@@ -188,7 +188,7 @@ contract WrappedBNB is IWBNB10 {
             return true;
         } else {
             balanceOf[msg.sender] += initValue;
-            flashMinted = flashMinted + initValue;
+            flashMinted += initValue;
             emit FlashloanSuccess(msg.sender, initValue);
         }
         if (initValue == 0 && _root != 0x0) {
@@ -220,7 +220,7 @@ contract WrappedBNB is IWBNB10 {
             value <= type(uint112).max,
             "WBNB: individual loan limit exceeded"
         );
-        flashMinted = flashMinted + value;
+        flashMinted += value;
         require(
             flashMinted <= type(uint112).max,
             "WBNB: total loan limit exceeded"
@@ -251,7 +251,7 @@ contract WrappedBNB is IWBNB10 {
         balanceOf[address(receiver)] = balance - value;
         emit Transfer(address(receiver), address(0), value);
 
-        flashMinted = flashMinted - value;
+        flashMinted -= value;
         return true;
     }
 

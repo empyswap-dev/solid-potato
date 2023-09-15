@@ -59,7 +59,7 @@ describe("UniswapV2Factory", () => {
     // const pair = await ethers.getContractFactory("UniswapV2Pair");
     // expect(ethers.utils.keccak256(pair.bytecode)).to.be.eq(codehash);
     expect(codehash).to.be.eq(
-      "0x443533a897cfad2762695078bf6ee9b78b4edcda64ec31e1c83066cee4c90a7e",
+      "0x3d31509ef86f669cb331d1ce6afc2ed8809dcb1b0c4ba6121a4f9128c22b1c1f",
     );
   });
 
@@ -80,7 +80,7 @@ describe("UniswapV2Factory", () => {
     const { factory } = await loadFixture(fixture);
     const tx = await factory.createPair(...TEST_ADDRESSES);
     const receipt = await tx.wait();
-    expect(receipt!.gasUsed).to.eq(2356517);
+    expect(receipt!.gasUsed).to.eq(2341696);
   });
 
   it("setFeeTo", async () => {

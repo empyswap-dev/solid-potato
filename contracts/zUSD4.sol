@@ -123,10 +123,10 @@ contract ZetherUSDImplementation {
         // hash the name context with the contract address
         EIP712_DOMAIN_HASH = keccak256(
             abi.encode( // solium-disable-line
-                EIP712_DOMAIN_SEPARATOR_SCHEMA_HASH,
-                keccak256(bytes(name)),
-                address(this)
-            )
+                    EIP712_DOMAIN_SEPARATOR_SCHEMA_HASH,
+                    keccak256(bytes(name)),
+                    address(this)
+                )
         );
     }
 
@@ -525,13 +525,13 @@ contract ZetherUSDImplementation {
         // EIP712 scheme: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
         bytes32 delegatedTransferHash = keccak256(
             abi.encodePacked( // solium-disable-line
-                EIP712_DELEGATED_TRANSFER_SCHEMA_HASH,
-                to,
-                value,
-                fee,
-                seq,
-                deadline //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            )
+                    EIP712_DELEGATED_TRANSFER_SCHEMA_HASH,
+                    to,
+                    value,
+                    fee,
+                    seq,
+                    deadline //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                )
         );
         bytes32 hash = keccak256(
             abi.encodePacked(

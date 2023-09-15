@@ -601,7 +601,7 @@ describe("UniswapV2Router", () => {
         ethers.MaxUint256,
       );
       const receipt = await tx.wait();
-      expect(receipt!.gasUsed).to.eq(101097, "gas used");
+      expect(receipt!.gasUsed).to.eq(113074, "gas used");
     });
   });
 
@@ -831,7 +831,7 @@ describe("UniswapV2Router", () => {
         },
       );
       const receipt = await tx.wait();
-      expect(receipt!.gasUsed).to.eq(138689, "gas used");
+      expect(receipt!.gasUsed).to.eq(150629, "gas used");
     }).retries(3);
   });
 

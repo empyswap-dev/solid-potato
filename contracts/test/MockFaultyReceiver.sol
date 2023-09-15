@@ -7,18 +7,17 @@ pragma solidity ^0.8.6;
  * @notice A contract that throws if sent ETH.
  */
 contract MockFaultyReceiver {
-
     /**
      * @notice Fallback function to allow contract to receive **ETH**.
      */
-    receive () external payable {
+    receive() external payable {
         revert("get stickbugged");
     }
 
     /**
      * @notice Fallback function to allow contract to receive **ETH**.
      */
-    fallback () external payable {
+    fallback() external payable {
         revert("get stickbugged");
     }
 
@@ -28,7 +27,10 @@ contract MockFaultyReceiver {
      * @param to Contract to call.
      * @param data Data to send.
      */
-    function forwardCall(address payable to, bytes calldata data) external payable {
+    function forwardCall(
+        address payable to,
+        bytes calldata data
+    ) external payable {
         (bool success, ) = to.call{value: msg.value}(data);
         require(success, "could not forward call");
     }
