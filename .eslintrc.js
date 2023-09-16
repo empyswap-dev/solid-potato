@@ -31,5 +31,16 @@ module.exports = {
         varsIgnorePattern: "_",
       },
     ],
+    "max-len": [
+      "error",
+      {
+        "code": 60,
+        "tabWidth": 2,
+        "ignoreComments": true, //"comments": 80
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ]
   },
 };

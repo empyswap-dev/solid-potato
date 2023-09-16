@@ -487,8 +487,9 @@ describe("UniswapV2Pair", () => {
     const predict0 = expandTo18Decimals(51);
     const predict1 = expandTo18Decimals(99);
     await pair.updatePredict(0, predict1);
-    await expect(pair.swap(0, expectedOutputAmount, wallet.address, "0x"))
-      .to.be.revertedWith("UniswapV2: INSUFFICIENT_PREDICT_AMOUNT");
+    await expect(
+      pair.swap(0, expectedOutputAmount, wallet.address, "0x"),
+    ).to.be.revertedWith("UniswapV2: INSUFFICIENT_PREDICT_AMOUNT");
     await pair.updatePredict(predict0, 0);
     await expect(pair.swap(0, expectedOutputAmount, wallet.address, "0x"))
       .to.emit(token1, "Transfer")
@@ -504,8 +505,9 @@ describe("UniswapV2Pair", () => {
         expectedOutputAmount,
         wallet.address,
       );
-    await expect(pair.connect(other).updateFee(true, expectedLiquidity))
-      .to.be.revertedWith("UniswapV2: FORBIDDEN");
+    await expect(
+      pair.connect(other).updateFee(true, expectedLiquidity),
+    ).to.be.revertedWith("UniswapV2: FORBIDDEN");
     await expect(pair.connect(wallet).updateFee(true, expectedLiquidity))
       .to.emit(pair, "Transfer")
       .withArgs(ZeroAddress, wallet.address, expectedLiquidity);

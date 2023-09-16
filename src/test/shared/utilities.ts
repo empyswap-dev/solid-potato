@@ -3,6 +3,15 @@ import { ethers } from "ethers";
 export function expandTo18Decimals(n: number): bigint {
   return BigInt(n) * 10n ** 18n;
 }
+// returns a number in its full 32 byte hex representation
+export function toBytes32(str: string) {
+  return ethers.hexlify(ethers.zeroPadBytes(str, 32));
+}
+
+// same as above without leading 0x
+export function toAbiEncoded(str: string) {
+  return toBytes32(str).substring(2);
+}
 
 export function getCreate2Address(
   factoryAddress: string,
@@ -17,6 +26,37 @@ export function getCreate2Address(
       ethers.solidityPacked(["address", "address"], [token0, token1]),
     ),
     ethers.keccak256(bytecode),
+  );
+}
+
+// works for ERC20s, not ERC721s
+export const PERMIT_TYPEHASH = ethers.keccak256(
+  ethers.toUtf8Bytes(
+    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)",
+  ),
+);
+
+// Gets the EIP712 domain separator
+export function getDomainSeparator(
+  name: string,
+  contractAddress: string,
+  chainId: number,
+) {
+  return ethers.keccak256(
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "bytes32", "bytes32", "uint256", "address"],
+      [
+        ethers.keccak256(
+          ethers.toUtf8Bytes(
+            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)",
+          ),
+        ),
+        ethers.keccak256(ethers.toUtf8Bytes(name)),
+        ethers.keccak256(ethers.toUtf8Bytes("1")),
+        chainId,
+        contractAddress,
+      ],
+    ),
   );
 }
 
