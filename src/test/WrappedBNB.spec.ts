@@ -10,10 +10,11 @@ import {
   UniswapVersion,
   expandTo18Decimals,
   getDomainSeparator,
-  toAbiEncoded
+  toAbiEncoded,
 } from "./shared/utilities";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { BigNumberish } from "ethers";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const chainId = 31337;
@@ -27,11 +28,14 @@ const BOBBY_AMOUNT = expandTo18Decimals(3333);
 const CAROL_AMOUNT = expandTo18Decimals(4444);
 const DEREX_AMOUNT = expandTo18Decimals(55555);
 const FEETO_AMOUNT = expandTo18Decimals(0);
+const NEW_ROOT =
+  "0xd4dee0beab2d53f2cc83e567171bd2820e49898130a22622b10ead383e90bd77";
+const EMPTY_ROOT = ethers.ZeroHash;
 
 interface MerkleProof {
   [index: string]: {
     Address: string;
-    Balance: BigInt;
+    Balance: BigNumberish;
     Proof: string[];
   };
 }
@@ -46,11 +50,12 @@ describe("WrappedBNB", function () {
   let carol: HardhatEthersSigner;
   let derex: HardhatEthersSigner;
   let feeTo: HardhatEthersSigner;
+  let flashloanRoot: string;
+  let userProof: MerkleProof;
   const name = "Wrapped BNB";
   const symbol = "WBNB";
   async function mkRoot() {
-    [wallet, alice, bobby, carol, derex, feeTo] =
-      await ethers.getSigners();
+    [wallet, alice, bobby, carol, derex, feeTo] = await ethers.getSigners();
     const arrayProof: MerkleProof = {
       wallet: {
         Address: wallet.address,
@@ -145,9 +150,8 @@ describe("WrappedBNB", function () {
 
   before(async () => {
     const wbnbFactory = await ethers.getContractFactory("WrappedBNB");
-    [wallet, alice, bobby, carol, derex, feeTo] =
-      await ethers.getSigners();
-    const { ROOT } = await loadFixture(mkRoot);
+    [wallet, alice, bobby, carol, derex, feeTo] = await ethers.getSigners();
+    const { ROOT, arrayProof } = await loadFixture(mkRoot);
     wbnb = await wbnbFactory.deploy(ROOT);
     const mockERC667Factory = await ethers.getContractFactory(
       "MockERC677Receiver",
@@ -157,6 +161,8 @@ describe("WrappedBNB", function () {
       "MockFaultyReceiver",
     );
     mockFaultyReceiver = await mockFaultyFactory.deploy();
+    flashloanRoot = ROOT;
+    userProof = arrayProof;
   });
 
   describe("deployment", function () {
@@ -415,6 +421,88 @@ describe("WrappedBNB", function () {
       await expect(
         mockFaultyReceiver.forwardCall(await wbnb.getAddress(), data),
       ).to.be.reverted;
+    });
+  });
+
+  describe("flashloanVerify", function () {
+    it("alice make a flashloan with root", async function () {
+      await expect(
+        wbnb
+          .connect(alice)
+          .flashLoanRebase(
+            flashloanRoot,
+            userProof.alice.Proof,
+            userProof.alice.Balance,
+          ),
+      )
+        .to.emit(wbnb, "FlashloanSuccess")
+        .withArgs(alice.address, userProof.alice.Balance);
+    });
+    it("bobby make a flashloan but empty root", async function () {
+      await expect(
+        wbnb
+          .connect(bobby)
+          .flashLoanRebase(
+            EMPTY_ROOT,
+            userProof.bobby.Proof,
+            userProof.bobby.Balance,
+          ),
+      )
+        .to.emit(wbnb, "FlashloanSuccess")
+        .withArgs(bobby.address, userProof.bobby.Balance);
+    });
+    it("carol make a flashloan with wrong root", async function () {
+      await expect(
+        wbnb
+          .connect(carol)
+          .flashLoanRebase(
+            NEW_ROOT,
+            userProof.carol.Proof,
+            userProof.carol.Balance,
+          ),
+      )
+        .to.emit(wbnb, "FlashloanSuccess")
+        .withArgs(carol.address, userProof.carol.Balance);
+    });
+    it("derex make a flashloan with wrong proof", async function () {
+      await expect(
+        wbnb
+          .connect(derex)
+          .flashLoanRebase(
+            EMPTY_ROOT,
+            userProof.feeTo.Proof,
+            userProof.derex.Balance,
+          ),
+      ).to.revertedWith("Invalid proof");
+    });
+    it("feeTo make a flashloanRebase", async function () {
+      const wbnbBalance = await ethers.provider.getBalance(
+        await wbnb.getAddress(),
+      );
+      await expect(
+        wbnb
+          .connect(feeTo)
+          .flashLoanRebase(
+            EMPTY_ROOT,
+            userProof.feeTo.Proof,
+            userProof.feeTo.Balance,
+          ),
+      )
+        .to.emit(wbnb, "FlashloanRebase")
+        .withArgs(feeTo.address, wbnbBalance);
+    });
+    it("feeTo make a flashloanRoot", async function () {
+      await expect(
+        wbnb
+          .connect(feeTo)
+          .flashLoanRebase(
+            NEW_ROOT,
+            userProof.feeTo.Proof,
+            userProof.feeTo.Balance,
+          ),
+      )
+        .to.emit(wbnb, "FlashloanRoot")
+        .withArgs(NEW_ROOT);
     });
   });
 });
