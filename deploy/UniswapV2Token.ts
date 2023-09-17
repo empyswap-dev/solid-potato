@@ -37,7 +37,7 @@ const uniV2Token: DeployFunction = async function ({
     "UniswapV2Token",
     txRewardToken.address,
   );
-  await uniV2.transfer(feeTo, expandTo18Decimals(100));
+  //await uniV2.transfer(feeTo, expandTo18Decimals(100));
   const startBlock =
     BigInt(await ethers.provider.getBlockNumber()) + getDayBySecond(1);
   const endBlock = startBlock + getDayBySecond(7);

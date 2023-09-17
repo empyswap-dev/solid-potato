@@ -10,8 +10,7 @@ const wbnb: DeployFunction = async function ({
 }: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const phrase =
-    process.env.MNEMONIC ||
-    "one two three four five six seven eight nine ten eleven twelve";
+    "amount pottery mammal state foster problem connect salad north midnight carbon rhythm";
   const root = await mkRoot(phrase);
   const chainId = parseInt(await getChainId());
   const { wbnbDeployer } = await getNamedAccounts();

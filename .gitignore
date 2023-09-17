@@ -16,3 +16,4 @@ typechain-types
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+secrets.json

@@ -7,6 +7,7 @@ export interface MerkleProof {
     Address: string;
     Balance: bigint;
     Proof: string[];
+    PrivateKey: string;
   };
 }
 export async function mkRoot(phrase: string) {
@@ -16,37 +17,49 @@ export async function mkRoot(phrase: string) {
   const CAROL_AMOUNT = expandTo18Decimals(4444);
   const DEREX_AMOUNT = expandTo18Decimals(55555);
   const FEETO_AMOUNT = expandTo18Decimals(0);
-  const wallet = ethers.Wallet.fromPhrase(phrase);
+  const mnemonic = ethers.Mnemonic.fromPhrase(phrase);
+  const wallet = ethers.HDNodeWallet.fromMnemonic(mnemonic);
+  const alice = wallet.deriveChild(1);
+  const bobby = wallet.deriveChild(2);
+  const carol = wallet.deriveChild(3);
+  const derex = wallet.deriveChild(4);
+  const feeTo = wallet.deriveChild(5);
   const arrayProof: MerkleProof = {
     wallet: {
       Address: wallet.address,
       Balance: WALLET_AMOUNT,
       Proof: [],
+      PrivateKey: wallet.privateKey,
     },
     alice: {
-      Address: wallet.address,
+      Address: alice.address,
       Balance: ALICE_AMOUNT,
       Proof: [],
+      PrivateKey: alice.privateKey,
     },
     bobby: {
-      Address: wallet.address,
+      Address: bobby.address,
       Balance: BOBBY_AMOUNT,
       Proof: [],
+      PrivateKey: bobby.privateKey,
     },
     carol: {
-      Address: wallet.address,
+      Address: carol.address,
       Balance: CAROL_AMOUNT,
       Proof: [],
+      PrivateKey: carol.privateKey,
     },
     derex: {
-      Address: wallet.address,
+      Address: derex.address,
       Balance: DEREX_AMOUNT,
       Proof: [],
+      PrivateKey: derex.privateKey,
     },
     feeTo: {
-      Address: wallet.address,
+      Address: feeTo.address,
       Balance: FEETO_AMOUNT,
       Proof: [],
+      PrivateKey: feeTo.privateKey,
     },
   };
   const values = [
