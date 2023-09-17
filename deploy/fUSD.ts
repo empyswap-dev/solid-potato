@@ -1,21 +1,22 @@
 import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-const zUSD: DeployFunction = async function ({
+const fUSD: DeployFunction = async function ({
   getNamedAccounts,
   deployments,
-  getChainId,
   run,
+  getChainId,
 }: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const chainId = parseInt(await getChainId());
-  const { derex } = await getNamedAccounts();
-  const token = await deploy("ZetherUSDImplementation", {
-    from: derex,
+  const { alice } = await getNamedAccounts();
+  const token = await deploy("FUSD2Implimentation", {
+    from: alice,
     args: [],
     log: true,
     deterministicDeployment: false,
   });
+  if (token.newlyDeployed) console.log(`with no args`);
   if (!token.newlyDeployed && chainId !== 31337) {
     await run("verify:verify", {
       address: token.address,
@@ -24,8 +25,8 @@ const zUSD: DeployFunction = async function ({
   }
 };
 
-zUSD.tags = ["zUSD", "Fiat"];
+fUSD.tags = ["fUSD", "Fiat"];
 
-zUSD.dependencies = ["UniswapV2Router", "fUSD"];
+fUSD.dependencies = ["UniswapV2Router"];
 
-export default zUSD;
+export default fUSD;

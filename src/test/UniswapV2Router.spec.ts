@@ -1,19 +1,18 @@
-import { time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { UniswapV2Pair } from "../../typechain-types";
 import {
-  expandTo18Decimals,
   MINIMUM_LIQUIDITY,
   UniswapVersion,
+  expandTo18Decimals,
 } from "./shared/utilities";
-import { UniswapV2Pair } from "../../typechain-types";
 
 describe("UniswapV2Router", () => {
   async function v2Fixture() {
     const [wallet] = await ethers.getSigners();
-    const token = await ethers.getContractFactory("ERC20");
+    const token = await ethers.getContractFactory("MockERC20");
 
     // deploy tokens
     const tokenA = await token.deploy(expandTo18Decimals(10000));
@@ -22,7 +21,7 @@ describe("UniswapV2Router", () => {
     const weth = await ethers.getContractFactory("WETH9");
     const WETH = await weth.deploy();
 
-    const erc20 = await ethers.getContractFactory("ERC20");
+    const erc20 = await ethers.getContractFactory("MockERC20");
     const WETHPartner = await erc20.deploy(expandTo18Decimals(10000));
 
     // deploy V2
@@ -188,9 +187,8 @@ describe("UniswapV2Router", () => {
   });
 
   it("addLiquidity", async () => {
-    const { router02, token0, token1, wallet, pair } = await loadFixture(
-      v2Fixture,
-    );
+    const { router02, token0, token1, wallet, pair } =
+      await loadFixture(v2Fixture);
 
     const token0Amount = expandTo18Decimals(1);
     const token1Amount = expandTo18Decimals(4);
@@ -233,9 +231,8 @@ describe("UniswapV2Router", () => {
   });
 
   it("removeLiquidity", async () => {
-    const { router02, token0, token1, wallet, pair } = await loadFixture(
-      v2Fixture,
-    );
+    const { router02, token0, token1, wallet, pair } =
+      await loadFixture(v2Fixture);
 
     const token0Amount = expandTo18Decimals(1);
     const token1Amount = expandTo18Decimals(4);
@@ -379,9 +376,8 @@ describe("UniswapV2Router", () => {
   });
 
   it("removeLiquidityWithPermit", async () => {
-    const { router02, token0, token1, wallet, pair } = await loadFixture(
-      v2Fixture,
-    );
+    const { router02, token0, token1, wallet, pair } =
+      await loadFixture(v2Fixture);
 
     const token0Amount = expandTo18Decimals(1);
     const token1Amount = expandTo18Decimals(4);
@@ -439,9 +435,8 @@ describe("UniswapV2Router", () => {
   });
 
   it("removeLiquidityETHWithPermit", async () => {
-    const { router02, wallet, WETHPartner, wethPair, WETH } = await loadFixture(
-      v2Fixture,
-    );
+    const { router02, wallet, WETHPartner, wethPair, WETH } =
+      await loadFixture(v2Fixture);
 
     const WETHPartnerAmount = expandTo18Decimals(1);
     const ETHAmount = expandTo18Decimals(4);
@@ -507,9 +502,8 @@ describe("UniswapV2Router", () => {
     const expectedOutputAmount = 1662497915624478906n;
 
     it("happy path", async () => {
-      const { router02, token0, token1, wallet, pair } = await loadFixture(
-        v2Fixture,
-      );
+      const { router02, token0, token1, wallet, pair } =
+        await loadFixture(v2Fixture);
 
       // before each
       await token0.transfer(await pair.getAddress(), token0Amount);
@@ -573,9 +567,8 @@ describe("UniswapV2Router", () => {
     });
 
     it("gas", async () => {
-      const { router02, token0, token1, wallet, pair } = await loadFixture(
-        v2Fixture,
-      );
+      const { router02, token0, token1, wallet, pair } =
+        await loadFixture(v2Fixture);
 
       // before each
       await token0.transfer(await pair.getAddress(), token0Amount);
@@ -612,9 +605,8 @@ describe("UniswapV2Router", () => {
     const outputAmount = expandTo18Decimals(1);
 
     it("happy path", async () => {
-      const { router02, token0, token1, wallet, pair } = await loadFixture(
-        v2Fixture,
-      );
+      const { router02, token0, token1, wallet, pair } =
+        await loadFixture(v2Fixture);
 
       // before each
       await token0.transfer(await pair.getAddress(), token0Amount);

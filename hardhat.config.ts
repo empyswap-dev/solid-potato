@@ -12,7 +12,7 @@ import "./src/tasks/accounts";
 // configs
 const config: HardhatUserConfig = {
   namedAccounts: {
-    deployer: {
+    wallet: {
       default: 0,
     },
     alice: {
@@ -30,6 +30,9 @@ const config: HardhatUserConfig = {
     feeTo: {
       default: 5,
     },
+    wbnbDeployer: {
+      default: 19,
+    }
   },
   networks: {
     hardhat: {

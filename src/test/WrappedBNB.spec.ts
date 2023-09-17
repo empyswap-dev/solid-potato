@@ -1,10 +1,13 @@
-import { expect } from "chai";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
+import { expect } from "chai";
+import { BigNumberish } from "ethers";
 import { ethers } from "hardhat";
 import {
-  WrappedBNB,
   MockERC677Receiver,
   MockFaultyReceiver,
+  WrappedBNB,
 } from "../../typechain-types";
 import {
   UniswapVersion,
@@ -12,9 +15,6 @@ import {
   getDomainSeparator,
   toAbiEncoded,
 } from "./shared/utilities";
-import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
-import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { BigNumberish } from "ethers";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const chainId = 31337;
@@ -127,13 +127,11 @@ describe("WrappedBNB", function () {
       await ethers.getSigners();
     const { ROOT } = await loadFixture(mkRoot);
     wbnb = await wbnbFactory.deploy(ROOT);
-    const mockERC667Factory = await ethers.getContractFactory(
-      "MockERC677Receiver",
-    );
+    const mockERC667Factory =
+      await ethers.getContractFactory("MockERC677Receiver");
     mockReceiver = await mockERC667Factory.deploy();
-    const mockFaultyFactory = await ethers.getContractFactory(
-      "MockFaultyReceiver",
-    );
+    const mockFaultyFactory =
+      await ethers.getContractFactory("MockFaultyReceiver");
     mockFaultyReceiver = await mockFaultyFactory.deploy();
     return {
       wbnb,
@@ -153,13 +151,11 @@ describe("WrappedBNB", function () {
     [wallet, alice, bobby, carol, derex, feeTo] = await ethers.getSigners();
     const { ROOT, arrayProof } = await loadFixture(mkRoot);
     wbnb = await wbnbFactory.deploy(ROOT);
-    const mockERC667Factory = await ethers.getContractFactory(
-      "MockERC677Receiver",
-    );
+    const mockERC667Factory =
+      await ethers.getContractFactory("MockERC677Receiver");
     mockReceiver = await mockERC667Factory.deploy();
-    const mockFaultyFactory = await ethers.getContractFactory(
-      "MockFaultyReceiver",
-    );
+    const mockFaultyFactory =
+      await ethers.getContractFactory("MockFaultyReceiver");
     mockFaultyReceiver = await mockFaultyFactory.deploy();
     flashloanRoot = ROOT;
     userProof = arrayProof;

@@ -1,21 +1,19 @@
+import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-
-import {
-  expandTo18Decimals,
-  encodePrice,
-  MINIMUM_LIQUIDITY,
-} from "./shared/utilities";
-import { UniswapV2Pair, ERC20 } from "../../typechain-types";
-import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { Signer, ZeroAddress } from "ethers";
+import { ethers } from "hardhat";
+import { MockERC20, UniswapV2Pair } from "../../typechain-types";
+import {
+  MINIMUM_LIQUIDITY,
+  encodePrice,
+  expandTo18Decimals,
+} from "./shared/utilities";
 
 describe("UniswapV2Pair", () => {
   async function fixture() {
     const [pairFactory, erc20Factory] = await Promise.all([
       ethers.getContractFactory("UniswapV2Pair"),
-      ethers.getContractFactory("ERC20"),
+      ethers.getContractFactory("MockERC20"),
     ]);
     const [wallet, other] = await ethers.getSigners();
 
@@ -25,10 +23,10 @@ describe("UniswapV2Pair", () => {
 
     const tokenA = (await erc20Factory.deploy(
       expandTo18Decimals(10000),
-    )) as ERC20;
+    )) as MockERC20;
     const tokenB = (await erc20Factory.deploy(
       expandTo18Decimals(10000),
-    )) as ERC20;
+    )) as MockERC20;
 
     const [tokenAAddress, tokenBAddress] = await Promise.all([
       tokenA.getAddress(),
@@ -79,8 +77,8 @@ describe("UniswapV2Pair", () => {
   });
 
   async function addLiquidity(
-    token0: ERC20,
-    token1: ERC20,
+    token0: MockERC20,
+    token1: MockERC20,
     pair: UniswapV2Pair,
     wallet: Signer,
     token0Amount: bigint,
@@ -423,9 +421,8 @@ describe("UniswapV2Pair", () => {
   });
 
   it("feeTo:on", async () => {
-    const { pair, wallet, token0, token1, other, factory } = await loadFixture(
-      fixture,
-    );
+    const { pair, wallet, token0, token1, other, factory } =
+      await loadFixture(fixture);
 
     await factory.setFeeTo(other.address);
 

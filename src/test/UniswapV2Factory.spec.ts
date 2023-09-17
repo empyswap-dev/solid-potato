@@ -1,9 +1,8 @@
-import { expect } from "chai";
-import { UniswapV2Factory, UniswapV2Pair } from "../../typechain-types";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-
-import { getCreate2Address } from "./shared/utilities";
+import { expect } from "chai";
 import { ethers } from "hardhat";
+import { UniswapV2Factory, UniswapV2Pair } from "../../typechain-types";
+import { getCreate2Address } from "./shared/utilities";
 
 const TEST_ADDRESSES: [string, string] = [
   "0x1000000000000000000000000000000000000000",

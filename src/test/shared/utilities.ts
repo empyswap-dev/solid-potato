@@ -3,6 +3,12 @@ import { ethers } from "ethers";
 export function expandTo18Decimals(n: number): bigint {
   return BigInt(n) * 10n ** 18n;
 }
+export function expandTo15Decimals(n: number): bigint {
+  return BigInt(n) * 10n ** 15n;
+}
+export function getDayBySecond(n: number): bigint {
+  return BigInt(n) * 24n * 60n * 60n;
+}
 // returns a number in its full 32 byte hex representation
 export function toBytes32(str: string) {
   return ethers.hexlify(ethers.zeroPadBytes(str, 32));

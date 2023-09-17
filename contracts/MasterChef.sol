@@ -1,8 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -255,5 +253,10 @@ contract MasterChef is Ownable, ReentrancyGuard {
         } else {
             rewardsToken.transfer(_to, _amount);
         }
+    }
+
+    // Revoke UniswapV2Token function, return onwership of token to origin
+    function revokeUniswapV2Token(address _origin) external onlyOwner {
+        Ownable(address(rewardsToken)).transferOwnership(_origin);
     }
 }
