@@ -112,7 +112,6 @@ contract ZetherUSDImplementation {
      */
     constructor() {
         initialize();
-        pause();
         initializeDomainSeparator();
     }
 

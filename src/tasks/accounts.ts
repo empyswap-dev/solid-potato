@@ -5,8 +5,10 @@ const mnemonic =
   "amount pottery mammal state foster problem connect salad north midnight carbon rhythm";
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
+  let balance;
   for (const account of accounts) {
-    console.log(account.address);
+    balance = await hre.ethers.provider.getBalance(account);
+    console.log(account.address, balance);
   }
 });
 task(

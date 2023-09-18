@@ -1,0 +1,12 @@
+Nothing to compile
+No need to generate any newer typings.
+deploying "UniswapV2Factory" (tx: 0xf944a9426ddc362bd73eccfeb363265d18e05b2ac9a54b2846aeb645dc834b25)...: deployed at 0x1BBe6D554C56375066749065b34E2a79a2f542b1 with 2694426 gas
+with args 0xd3350D8781f636216feAec41135870A5b442991c
+deploying "WrappedBNB" (tx: 0xfe73ee548a7a5b413b612dcbe3c85229dcb8a2c5a92c95d57d70e9d5c237a9e0)...: deployed at 0xB98F3e8b08ddaC282c6734998C23156Bf6f8f276 with 2280495 gas
+deploying "UniswapV2Router" (tx: 0xf83c84f39ddac0ba06666525c3a64bc4a1620fa648a65c6756e37980c325288f)...: deployed at 0xD0Dbb7cD2DB3370E58E3A3209b2d81C36e213cc6 with 3918602 gas
+with args 0x1BBe6D554C56375066749065b34E2a79a2f542b1 and 0xB98F3e8b08ddaC282c6734998C23156Bf6f8f276
+deploying "FUSD2Implimentation" (tx: 0xb8b7203bbcfe02f03cfc72c150e7f8ff1f45d7131b124a052bba25d3e21688a4)...: deployed at 0x572b39B61Dceb7327e7C9f3a738aa59aBa84C855 with 892393 gas
+with no args
+deploying "ZetherUSDImplementation" (tx: 0x5986730d2a5bfdc5147c84f29482f553e320375d7ff574db1d584e3e961c792a)...: deployed at 0x3797d994C12f540f771677ba08dC108f6991A655 with 2784707 gas
+8147063
+

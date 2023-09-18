@@ -1,5 +1,5 @@
 import hre, { ethers } from "hardhat";
-import uniV2Token from "../../deploy/UniswapV2Token";
+import uniV2Token from "../../deployT/UniswapV2Token";
 
 async function main() {
   const wbnbAddress = "0xb532F8a65F8A86e30752B49647b5aDAF691989b0";
