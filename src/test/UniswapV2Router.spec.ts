@@ -2,7 +2,7 @@ import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
-import { UniswapV2Pair } from "../../typechain-types";
+import { UniswapV2Pair, contracts } from "../../typechain-types";
 import {
   MINIMUM_LIQUIDITY,
   UniswapVersion,
@@ -23,6 +23,14 @@ describe("UniswapV2Router", () => {
 
     const erc20 = await ethers.getContractFactory("MockERC20");
     const WETHPartner = await erc20.deploy(expandTo18Decimals(10000));
+
+    const fusdFactory = await ethers.getContractFactory("FUSD2Implimentation");
+    const fusdToken = await fusdFactory.deploy();
+
+    const zusdFactory = await ethers.getContractFactory(
+      "ZetherUSDImplementation",
+    );
+    const zusdToken = await zusdFactory.deploy();
 
     // deploy V2
     const v2factory = await ethers.getContractFactory("UniswapV2Factory");
@@ -47,7 +55,7 @@ describe("UniswapV2Router", () => {
     await factoryV2.createPair(tokenAAddress, tokenBAddress);
     const pairAddress = await factoryV2.getPair(tokenAAddress, tokenBAddress);
     const pairFactory = await ethers.getContractFactory("UniswapV2Pair");
-    const pair = (await pairFactory.attach(pairAddress)) as UniswapV2Pair;
+    const pair = pairFactory.attach(pairAddress) as UniswapV2Pair;
 
     const token0Address = await pair.token0();
     const token0 = tokenAAddress === token0Address ? tokenA : tokenB;
@@ -65,10 +73,26 @@ describe("UniswapV2Router", () => {
       wallet,
     );
 
+    await factoryV2.createPair(
+      await fusdToken.getAddress(),
+      await zusdToken.getAddress(),
+    );
+    const stablePairAddress = await factoryV2.getPair(
+      await fusdToken.getAddress(),
+      await zusdToken.getAddress(),
+    );
+    const stablePool = new Contract(
+      stablePairAddress,
+      pairFactory.interface,
+      wallet,
+    );
+
     return {
       token0,
       token1,
       WETH,
+      fusdToken,
+      zusdToken,
       WETHPartner,
       factoryV2,
       router02,
@@ -76,6 +100,7 @@ describe("UniswapV2Router", () => {
       RouterEmit,
       wallet,
       wethPair,
+      stablePool,
     };
   }
 
@@ -224,8 +249,51 @@ describe("UniswapV2Router", () => {
       .withArgs(token0Amount, token1Amount)
       .to.emit(pair, "Mint")
       .withArgs(await router02.getAddress(), token0Amount, token1Amount);
-
     expect(await pair.balanceOf(wallet.address)).to.eq(
+      expectedLiquidity - MINIMUM_LIQUIDITY,
+    );
+  });
+
+  it("addLiquidityWithStable", async () => {
+    const { router02, fusdToken, zusdToken, wallet, stablePool } =
+      await loadFixture(v2Fixture);
+    const usdAmount = expandTo18Decimals(100);
+    const expectedLiquidity = expandTo18Decimals(100);
+    // approve token before safeTransfer
+    await zusdToken.unpause();
+    await zusdToken.increaseSupply(expandTo18Decimals(1000000));
+    await fusdToken.approve(await router02.getAddress(), ethers.MaxUint256);
+    await zusdToken.approve(await router02.getAddress(), ethers.MaxUint256);
+    // add liquidity with stable usd
+    await expect(
+      router02.addLiquidity(
+        await fusdToken.getAddress(),
+        await zusdToken.getAddress(),
+        usdAmount,
+        usdAmount,
+        0,
+        0,
+        wallet.address,
+        ethers.MaxUint256,
+      ),
+    )
+      .to.emit(fusdToken, "Transfer")
+      .withArgs(wallet.address, await stablePool.getAddress(), usdAmount)
+      .to.emit(zusdToken, "Transfer")
+      .withArgs(wallet.address, await stablePool.getAddress(), usdAmount)
+      .to.emit(stablePool, "Transfer")
+      .withArgs(ethers.ZeroAddress, ethers.ZeroAddress, MINIMUM_LIQUIDITY)
+      .to.emit(stablePool, "Transfer")
+      .withArgs(
+        ethers.ZeroAddress,
+        wallet.address,
+        expectedLiquidity - MINIMUM_LIQUIDITY,
+      )
+      .to.emit(stablePool, "Sync")
+      .withArgs(usdAmount, usdAmount)
+      .to.emit(stablePool, "Mint")
+      .withArgs(await router02.getAddress(), usdAmount, usdAmount);
+    expect(await stablePool.balanceOf(wallet.address)).to.eq(
       expectedLiquidity - MINIMUM_LIQUIDITY,
     );
   });
@@ -444,14 +512,10 @@ describe("UniswapV2Router", () => {
     await WETH.deposit({ value: ETHAmount });
     await WETH.transfer(await wethPair.getAddress(), ETHAmount);
     await wethPair.mint(wallet.address);
-
     const expectedLiquidity = expandTo18Decimals(2);
-
     const nonce = await wethPair.nonces(wallet.address);
-
     const tokenName = await wethPair.name();
     const { chainId } = await wallet.provider.getNetwork();
-
     const sig = await wallet.signTypedData(
       // "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
       {
@@ -480,7 +544,6 @@ describe("UniswapV2Router", () => {
     );
 
     const { r, s, v } = ethers.Signature.from(sig);
-
     await router02.removeLiquidityETHWithPermit(
       await WETHPartner.getAddress(),
       expectedLiquidity - MINIMUM_LIQUIDITY,

@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
     },
     wbnbDeployer: {
       default: 19,
-    }
+    },
   },
   networks: {
     hardhat: {
@@ -48,6 +48,7 @@ const config: HardhatUserConfig = {
         accountsBalance: "990000000000000000000",
       },
       gasPrice: 200_000_000,
+      deploy: ["deployT"],
     },
     mainnet: {
       url: "https://opbnb-mainnet-rpc.bnbchain.org/",
@@ -56,10 +57,11 @@ const config: HardhatUserConfig = {
         mnemonic: process.env.MNEMONIC_MAINNET,
       },
       gasPrice: 1_000_000_000,
+      deploy: ["deployM"],
     },
   },
   solidity: {
-    version: "0.8.20",
+    version: "0.8.17",
     settings: {
       optimizer: {
         enabled: true,
@@ -68,7 +70,6 @@ const config: HardhatUserConfig = {
       metadata: {
         bytecodeHash: "none",
       },
-      evmVersion: "paris",
     },
   },
   gasReporter: {
@@ -100,7 +101,7 @@ const config: HardhatUserConfig = {
           apiURL: `https://open-platform.nodereal.io/${process.env.ETHERSCAN_API_KEY}/op-bnb-testnet/contract/`,
           browserURL: "htpps://opbnbscan.com/",
         },
-      }
+      },
     ],
   },
 };

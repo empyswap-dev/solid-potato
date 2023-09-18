@@ -8,13 +8,13 @@ import {IBEP20} from "./interfaces/BEP20/IBEP20.sol";
 contract FUSD2Implimentation is IBEP20, Ownable {
     using SafeMath for uint256;
 
-    mapping(address => uint256) private _balances;
-    mapping(address => mapping(address => uint256)) private _allowances;
-
     uint256 private _totalSupply;
     uint8 public _decimals;
     string public _symbol;
     string public _name;
+
+    mapping(address => uint256) private _balances;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     constructor() Ownable(msg.sender) {
         _name = "FUSD Token";
@@ -22,7 +22,6 @@ contract FUSD2Implimentation is IBEP20, Ownable {
         _decimals = 18;
         _totalSupply = 31000000000000000000000000;
         _balances[msg.sender] = _totalSupply;
-
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (token/BEP20/extensions/BEP4626.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.6;
 
 import {IBEP20} from "../../interfaces/BEP20/IBEP20.sol";
 import {BEP20} from "./BEP20.sol";
