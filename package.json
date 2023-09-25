@@ -55,7 +55,7 @@
     "ts-node": "^10.9.1",
     "typechain": "^8.3.1",
     "typescript": "^5.1.6",
-    "web3": "^4.1.1"
+    "web3": "^4.1.2"
   },
   "scripts": {
     "lint": "prettier --plugin=prettier-plugin-solidity --check src contracts && solhint contracts",
