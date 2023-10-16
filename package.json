@@ -53,7 +53,7 @@
     "solhint": "^3.6.2",
     "solidity-coverage": "^0.8.5",
     "ts-node": "^10.9.1",
-    "typechain": "^8.3.1",
+    "typechain": "^8.3.2",
     "typescript": "^5.1.6",
     "web3": "^4.1.2"
   },
